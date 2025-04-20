@@ -31,7 +31,11 @@ const Register: React.FC = () => {
     'Health',
     'Education',
     'Sanitation',
-    'Administration'
+    'Public Works',
+    'Transportation',
+    'Housing',
+    'Administration',
+    'Finance'
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,7 +92,7 @@ const Register: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">
           <span className="text-white">JD</span>
-          <span className="text-purple-light"> Modern Solutions</span>
+          <span className="text-purple-light"> Frameworks</span>
         </h1>
         <p className="text-gray-300">Create an account to get started</p>
       </div>

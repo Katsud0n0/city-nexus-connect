@@ -4,252 +4,232 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 import { getUsers, User } from '@/utils/excelService';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Phone, Mail, Building } from 'lucide-react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  BarChart,
+  CheckCircle,
+  Mail,
+  MessageSquare,
+  Phone,
+  UserPlus,
+} from 'lucide-react';
 
 const Team: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
-    // Get all users
-    setTeamMembers(getUsers());
+
+    // Get all users from the service
+    setAllUsers(getUsers());
   }, [isAuthenticated, navigate]);
 
-  // Generate initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase();
-  };
+  // Group users by department
+  const usersByDepartment: Record<string, User[]> = {};
+  
+  allUsers.forEach((user) => {
+    if (!usersByDepartment[user.department]) {
+      usersByDepartment[user.department] = [];
+    }
+    usersByDepartment[user.department].push(user);
+  });
 
-  // Generate mock email from username
-  const generateEmail = (username: string) => {
-    return `${username.toLowerCase()}@jdframeworks.com`;
-  };
+  const departments = Object.keys(usersByDepartment).sort();
 
-  // Generate mock phone number
-  const generatePhone = (username: string) => {
-    const numbers = username.split('').map(char => char.charCodeAt(0) % 10).join('');
-    return `+91 ${numbers.padEnd(10, '0').substring(0, 10).replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`;
-  };
+  // If no users, populate with some mock data
+  if (allUsers.length === 0) {
+    const mockUsers = [
+      { username: 'john.doe', fullName: 'John Doe', department: 'Water Supply', password: '' },
+      { username: 'sarah.smith', fullName: 'Sarah Smith', department: 'Electricity', password: '' },
+      { username: 'michael.chen', fullName: 'Michael Chen', department: 'Health', password: '' },
+      { username: 'preeti.vyas', fullName: 'Preeti Vyas', department: 'Education', password: '' },
+      { username: 'rajiv.kumar', fullName: 'Rajiv Kumar', department: 'Sanitation', password: '' },
+      { username: 'lisa.wong', fullName: 'Lisa Wong', department: 'Public Works', password: '' },
+      { username: 'ahmed.khan', fullName: 'Ahmed Khan', department: 'Transportation', password: '' },
+      { username: 'maria.rodriguez', fullName: 'Maria Rodriguez', department: 'Housing', password: '' },
+      { username: 'david.kim', fullName: 'David Kim', department: 'Administration', password: '' },
+      { username: 'tanvi.shah', fullName: 'Tanvi Shah', department: 'Finance', password: '' },
+      { username: 'james.wilson', fullName: 'James Wilson', department: 'Water Supply', password: '' },
+      { username: 'priya.patel', fullName: 'Priya Patel', department: 'Education', password: '' },
+    ];
+    
+    mockUsers.forEach(mockUser => {
+      if (!usersByDepartment[mockUser.department]) {
+        usersByDepartment[mockUser.department] = [];
+      }
+      usersByDepartment[mockUser.department].push(mockUser);
+    });
+  }
 
   return (
     <div className="min-h-screen flex bg-gray-50">
       <Sidebar />
       
       <div className="flex-1 ml-64">
-        <Header title="Team Members" />
+        <Header title="Team" />
         
         <main className="p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Department Team</h2>
-            <p className="text-gray-600">Connect with colleagues across departments</p>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Departmental Teams</h2>
+              <p className="text-gray-600">Connect with team members across various departments</p>
+            </div>
+            
+            <Button className="bg-purple hover:bg-purple-dark">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invite Team Member
+            </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {teamMembers.map((member) => (
-              <Card key={member.username} className="overflow-hidden">
-                <CardHeader className="text-center pb-0">
-                  <Avatar className="h-24 w-24 mx-auto">
-                    <AvatarFallback className="text-2xl font-bold bg-purple text-white">
-                      {getInitials(member.fullName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="mt-4">{member.fullName}</CardTitle>
-                  <CardDescription>@{member.username}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center">
-                      <Building className="h-4 w-4 text-gray-500 mr-2" />
-                      <span>{member.department}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                      <span>{generateEmail(member.username)}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                      <span>{generatePhone(member.username)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="mb-6">
+              <TabsTrigger value="all">All Departments</TabsTrigger>
+              {departments.map((department) => (
+                <TabsTrigger key={department} value={department}>
+                  {department}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            <TabsContent value="all">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {departments.map((department) => (
+                  <Card key={department}>
+                    <CardHeader className="bg-gray-50 border-b">
+                      <CardTitle>{department}</CardTitle>
+                      <CardDescription>
+                        {usersByDepartment[department].length} team members
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        {usersByDepartment[department].map((teamMember) => (
+                          <TeamMemberCard 
+                            key={teamMember.username} 
+                            user={teamMember} 
+                          />
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            
+            {departments.map((department) => (
+              <TabsContent key={department} value={department}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {usersByDepartment[department].map((teamMember) => (
+                    <TeamMemberCard 
+                      key={teamMember.username} 
+                      user={teamMember} 
+                      expanded
+                    />
+                  ))}
+                </div>
+              </TabsContent>
             ))}
-
-            {/* If there are no team members or very few, add some dummy members */}
-            {teamMembers.length < 4 && (
-              <>
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-blue-500 text-white">RK</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Rahul Kumar</CardTitle>
-                    <CardDescription>@rahul</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Water Supply</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>rahul@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 987-654-3210</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-green-500 text-white">PS</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Priya Sharma</CardTitle>
-                    <CardDescription>@priya</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Health</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>priya@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 876-543-2109</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-yellow-500 text-white">AK</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Amit Kapoor</CardTitle>
-                    <CardDescription>@amit</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Electricity</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>amit@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 765-432-1098</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-red-500 text-white">SG</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Sneha Gupta</CardTitle>
-                    <CardDescription>@sneha</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Education</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>sneha@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 654-321-0987</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-orange-500 text-white">VP</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Vikram Patel</CardTitle>
-                    <CardDescription>@vikram</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Transportation</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>vikram@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 543-210-9876</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="text-center pb-0">
-                    <Avatar className="h-24 w-24 mx-auto">
-                      <AvatarFallback className="text-2xl font-bold bg-purple-500 text-white">NR</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="mt-4">Neha Reddy</CardTitle>
-                    <CardDescription>@neha</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>Finance</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>neha@jdframeworks.com</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                        <span>+91 432-109-8765</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-          </div>
+          </Tabs>
         </main>
+      </div>
+    </div>
+  );
+};
+
+type TeamMemberCardProps = {
+  user: User;
+  expanded?: boolean;
+};
+
+const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ user, expanded = false }) => {
+  // Generate a random avatar color based on username
+  const colorIndex = user.username.charCodeAt(0) % 5;
+  const avatarColors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-pink-500', 'bg-purple-500'];
+  const avatarColor = avatarColors[colorIndex];
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
+
+  if (expanded) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`${avatarColor} w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold`}>
+              {getInitials(user.fullName)}
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">{user.fullName}</h3>
+              <p className="text-gray-500">@{user.username}</p>
+              <p className="text-sm text-gray-500 mt-1">{user.department}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3 mt-4">
+            <Button variant="outline" className="w-full justify-start">
+              <Mail className="mr-2 h-4 w-4" />
+              Send Email
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Message
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Phone className="mr-2 h-4 w-4" />
+              Call
+            </Button>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t">
+            <h4 className="font-medium mb-2">Performance</h4>
+            <div className="flex justify-between items-center">
+              <div className="text-green-600 flex items-center">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                <span className="text-sm">Active Status</span>
+              </div>
+              <div className="text-gray-600 flex items-center">
+                <BarChart className="h-4 w-4 mr-1" />
+                <span className="text-sm">5 requests completed</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`${avatarColor} w-10 h-10 rounded-full flex items-center justify-center text-white font-bold`}>
+        {getInitials(user.fullName)}
+      </div>
+      <div>
+        <h3 className="font-medium">{user.fullName}</h3>
+        <p className="text-sm text-gray-500">@{user.username}</p>
       </div>
     </div>
   );

@@ -25,12 +25,15 @@ const Header: React.FC<{ title: string; children?: React.ReactNode }> = ({ title
     navigate('/login');
   };
 
-  // Get pending requests for notifications
-  const pendingRequests = getRequests().filter(req => req.status === 'pending');
+  // Get pending requests for notifications - only those not created by the current user
+  const pendingRequests = getRequests().filter(req => 
+    req.status === 'pending' && req.username !== user?.username
+  );
+  
   const hasNotifications = pendingRequests.length > 0;
 
   return (
-    <header className="flex justify-between items-center p-4 border-b">
+    <header className="flex justify-between items-center p-4 border-b bg-white">
       <h1 className="text-2xl font-bold">{title}</h1>
       
       <div className="flex items-center gap-4">
@@ -52,7 +55,7 @@ const Header: React.FC<{ title: string; children?: React.ReactNode }> = ({ title
             <div className="max-h-80 overflow-y-auto">
               {hasNotifications ? (
                 pendingRequests.map(req => (
-                  <div key={req.id} className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/requests/${req.id}`)}>
+                  <div key={req.id} className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/requests`)}>
                     <p className="font-medium">{req.title}</p>
                     <p className="text-sm text-gray-500 mt-1">New request from {req.username}</p>
                     <div className="text-xs text-gray-400 mt-1">

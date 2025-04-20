@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
-import { getRequests, updateRequestStatus, Request } from '@/utils/excelService';
-import { Search, Filter, FilePlus, Trash2, Check, Eye } from 'lucide-react';
+import { getRequests, updateRequestStatus, deleteRequest, Request } from '@/utils/excelService';
+import { Search, Filter, FilePlus, Trash2, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
   AlertDialog,
@@ -17,25 +17,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-
-// Add delete request function to excelService.ts (we'll implement this later)
-const deleteRequest = (id: string) => {
-  try {
-    // Get all requests
-    const requests = getRequests();
-    // Filter out the request to delete
-    const updatedRequests = requests.filter(r => r.id !== id);
-    // Save the updated requests to localStorage
-    localStorage.setItem('city_nexus_requests.xlsx', JSON.stringify(updatedRequests));
-    return true;
-  } catch (error) {
-    console.error('Error deleting request:', error);
-    return false;
-  }
-};
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Requests: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -98,35 +88,18 @@ const Requests: React.FC = () => {
     setRequestToDelete(null);
   };
 
-  const handleAcceptRequest = (id: string) => {
-    const success = updateRequestStatus(id, 'in-progress');
+  const handleStatusChange = (id: string, status: 'pending' | 'in-progress' | 'completed') => {
+    const success = updateRequestStatus(id, status);
     if (success) {
       toast({
-        title: "Request accepted",
-        description: "The request has been marked as in progress.",
+        title: "Status updated",
+        description: `The request has been marked as ${status}.`,
       });
       loadRequests();
     } else {
       toast({
         title: "Error",
-        description: "There was an error accepting the request.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCompleteRequest = (id: string) => {
-    const success = updateRequestStatus(id, 'completed');
-    if (success) {
-      toast({
-        title: "Request completed",
-        description: "The request has been marked as completed.",
-      });
-      loadRequests();
-    } else {
-      toast({
-        title: "Error",
-        description: "There was an error completing the request.",
+        description: "There was an error updating the request status.",
         variant: "destructive",
       });
     }
@@ -222,20 +195,32 @@ const Requests: React.FC = () => {
                           {new Date(request.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <StatusBadge status={request.status} />
+                          <div className="min-w-[140px]">
+                            <Select 
+                              value={request.status} 
+                              onValueChange={(value) => handleStatusChange(request.id, value as 'pending' | 'in-progress' | 'completed')}
+                            >
+                              <SelectTrigger className="h-8 w-full">
+                                <SelectValue>
+                                  <StatusBadge status={request.status} />
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">
+                                  <StatusBadge status="pending" />
+                                </SelectItem>
+                                <SelectItem value="in-progress">
+                                  <StatusBadge status="in-progress" />
+                                </SelectItem>
+                                <SelectItem value="completed">
+                                  <StatusBadge status="completed" />
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-purple flex items-center" 
-                            onClick={() => navigate(`/requests/${request.id}`)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          
-                          {user && user.username === request.username && request.status !== 'completed' && (
+                          {user && user.username === request.username && (
                             <Button 
                               variant="ghost" 
                               size="sm" 
@@ -252,22 +237,10 @@ const Requests: React.FC = () => {
                               variant="ghost" 
                               size="sm" 
                               className="text-green-500 flex items-center" 
-                              onClick={() => handleAcceptRequest(request.id)}
+                              onClick={() => handleStatusChange(request.id, 'in-progress')}
                             >
                               <Check className="h-4 w-4 mr-1" />
                               Accept
-                            </Button>
-                          )}
-                          
-                          {user && request.status === 'in-progress' && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-blue-500 flex items-center" 
-                              onClick={() => handleCompleteRequest(request.id)}
-                            >
-                              <Check className="h-4 w-4 mr-1" />
-                              Complete
                             </Button>
                           )}
                         </td>

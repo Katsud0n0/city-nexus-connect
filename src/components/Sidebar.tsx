@@ -41,18 +41,18 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         <p className="text-gray-400 text-sm">{user?.department || 'Administration'}</p>
       </div>
 
-      <nav className="mt-4">
-        <ul>
+      <nav className="mt-6">
+        <ul className="space-y-1">
           {menuItems.map((item) => (
             <li key={item.name}>
               <Link
                 to={item.path}
                 className={cn(
-                  "flex items-center w-full p-4 text-gray-300 hover:bg-slate-800 transition-colors",
+                  "flex items-center w-full p-3 text-gray-300 hover:bg-slate-800 transition-colors",
                   location.pathname === item.path && "bg-slate-800 border-l-4 border-purple"
                 )}
               >
-                <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                 </svg>
                 {item.name}
@@ -61,18 +61,18 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           ))}
         </ul>
 
-        <div className="mt-4">
-          <ul>
+        <div className="mt-6">
+          <ul className="space-y-1">
             {profileItems.map((item) => (
               <li key={item.name}>
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center w-full p-4 text-gray-300 hover:bg-slate-800 transition-colors",
+                    "flex items-center w-full p-3 text-gray-300 hover:bg-slate-800 transition-colors",
                     location.pathname === item.path && "bg-slate-800 border-l-4 border-purple"
                   )}
                 >
-                  <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                   </svg>
                   {item.name}

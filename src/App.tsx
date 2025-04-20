@@ -39,7 +39,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/team" element={<Team />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/home" element={<Navigate to="/dashboard" />} />
+            <Route path="/home" element={<Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
