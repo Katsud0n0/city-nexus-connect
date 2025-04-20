@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,12 +38,9 @@ const Dashboard: React.FC = () => {
       
       <div className="flex-1 ml-64">
         <Header title="Dashboard">
-          <div className="flex gap-2">
-            <Button variant="outline">Export Data</Button>
-            <Button className="bg-purple hover:bg-purple-dark" onClick={() => navigate('/requests/new')}>
-              New Request
-            </Button>
-          </div>
+          <Button className="bg-purple hover:bg-purple-dark" onClick={() => navigate('/requests/new')}>
+            New Request
+          </Button>
         </Header>
         
         <main className="p-6">

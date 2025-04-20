@@ -5,16 +5,46 @@ import { Button } from '@/components/ui/button';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
-import { getRequests, Request } from '@/utils/excelService';
-import { Search, Filter, FilePlus } from 'lucide-react';
+import { getRequests, updateRequestStatus, Request } from '@/utils/excelService';
+import { Search, Filter, FilePlus, Trash2, Check, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
+
+// Add delete request function to excelService.ts (we'll implement this later)
+const deleteRequest = (id: string) => {
+  try {
+    // Get all requests
+    const requests = getRequests();
+    // Filter out the request to delete
+    const updatedRequests = requests.filter(r => r.id !== id);
+    // Save the updated requests to localStorage
+    localStorage.setItem('city_nexus_requests.xlsx', JSON.stringify(updatedRequests));
+    return true;
+  } catch (error) {
+    console.error('Error deleting request:', error);
+    return false;
+  }
+};
 
 const Requests: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<Request[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -23,8 +53,12 @@ const Requests: React.FC = () => {
     }
 
     // Get all requests
-    setRequests(getRequests());
+    loadRequests();
   }, [isAuthenticated, navigate]);
+
+  const loadRequests = () => {
+    setRequests(getRequests());
+  };
 
   // Filter requests based on search term and status filter
   const filteredRequests = requests.filter(request => {
@@ -37,6 +71,66 @@ const Requests: React.FC = () => {
     
     return matchesSearch && matchesStatus;
   });
+
+  const handleDeleteRequest = (id: string) => {
+    setRequestToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (requestToDelete) {
+      const success = deleteRequest(requestToDelete);
+      if (success) {
+        toast({
+          title: "Request deleted",
+          description: "The request has been successfully deleted.",
+        });
+        loadRequests();
+      } else {
+        toast({
+          title: "Error",
+          description: "There was an error deleting the request.",
+          variant: "destructive",
+        });
+      }
+    }
+    setDeleteDialogOpen(false);
+    setRequestToDelete(null);
+  };
+
+  const handleAcceptRequest = (id: string) => {
+    const success = updateRequestStatus(id, 'in-progress');
+    if (success) {
+      toast({
+        title: "Request accepted",
+        description: "The request has been marked as in progress.",
+      });
+      loadRequests();
+    } else {
+      toast({
+        title: "Error",
+        description: "There was an error accepting the request.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCompleteRequest = (id: string) => {
+    const success = updateRequestStatus(id, 'completed');
+    if (success) {
+      toast({
+        title: "Request completed",
+        description: "The request has been marked as completed.",
+      });
+      loadRequests();
+    } else {
+      toast({
+        title: "Error",
+        description: "There was an error completing the request.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -130,10 +224,52 @@ const Requests: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <StatusBadge status={request.status} />
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <Button variant="link" className="text-purple" onClick={() => navigate(`/requests/${request.id}`)}>
-                            View Details
+                        <td className="px-6 py-4 whitespace-nowrap text-sm flex items-center space-x-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-purple flex items-center" 
+                            onClick={() => navigate(`/requests/${request.id}`)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
                           </Button>
+                          
+                          {user && user.username === request.username && request.status !== 'completed' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-500 flex items-center" 
+                              onClick={() => handleDeleteRequest(request.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
+                          )}
+                          
+                          {user && user.username !== request.username && request.status === 'pending' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-green-500 flex items-center" 
+                              onClick={() => handleAcceptRequest(request.id)}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Accept
+                            </Button>
+                          )}
+                          
+                          {user && request.status === 'in-progress' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-blue-500 flex items-center" 
+                              onClick={() => handleCompleteRequest(request.id)}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Complete
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -161,6 +297,21 @@ const Requests: React.FC = () => {
           </div>
         </main>
       </div>
+      
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this request.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

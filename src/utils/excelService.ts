@@ -179,6 +179,31 @@ export const updateRequestStatus = (requestId: string, status: 'pending' | 'in-p
   }
 };
 
+// Delete a request
+export const deleteRequest = (requestId: string): boolean => {
+  try {
+    const requests = getRequests();
+    const filteredRequests = requests.filter(r => r.id !== requestId);
+    
+    if (filteredRequests.length === requests.length) {
+      // No request was removed
+      return false;
+    }
+
+    // Write back to Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(filteredRequests);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Requests');
+    const excelData = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
+    localStorage.setItem(REQUESTS_FILE, excelData);
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting request:', error);
+    return false;
+  }
+};
+
 // Get requests by username
 export const getRequestsByUser = (username: string): Request[] => {
   try {
@@ -211,7 +236,18 @@ export const getRequestCounts = (): { total: number, pending: number, inProgress
 export const getDepartmentStats = (): { department: string, count: number }[] => {
   try {
     const requests = getRequests();
-    const departments = ['Water Supply', 'Electricity', 'Health', 'Education', 'Sanitation'];
+    const departments = [
+      'Water Supply', 
+      'Electricity', 
+      'Health', 
+      'Education', 
+      'Sanitation',
+      'Public Works',
+      'Transportation',
+      'Housing',
+      'Administration',
+      'Finance'
+    ];
     
     return departments.map(department => ({
       department,

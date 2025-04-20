@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Sidebar from '@/components/Sidebar';
@@ -9,16 +9,40 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { getRequestsByUser } from '@/utils/excelService';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 
 const Profile: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [editedDepartment, setEditedDepartment] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
+  const [editedPhone, setEditedPhone] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+    
+    if (user) {
+      setEditedName(user.fullName);
+      setEditedDepartment(user.department);
+      setEditedEmail(`${user.username}@jdframeworks.com`);
+      setEditedPhone('+91 9876543210');
+    }
+  }, [isAuthenticated, navigate, user]);
 
   const userRequests = getRequestsByUser(user?.username || '');
 
@@ -33,6 +57,19 @@ const Profile: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const openEditDialog = () => {
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveProfile = () => {
+    // In a real app, this would update the user profile in the database
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been successfully updated."
+    });
+    setEditDialogOpen(false);
   };
 
   if (!user) return null;
@@ -72,10 +109,28 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                     
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Email</h4>
+                      <p>{user.username}@jdframeworks.com</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Phone</h4>
+                      <p>+91 9876543210</p>
+                    </div>
+                    
                     <Separator />
                     
-                    <Button variant="outline" className="w-full" onClick={() => navigate('/settings')}>
+                    <Button variant="outline" className="w-full" onClick={openEditDialog}>
                       Edit Profile
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate('/settings')}
+                    >
+                      Settings
                     </Button>
                     
                     <Button 
@@ -155,6 +210,82 @@ const Profile: React.FC = () => {
           </div>
         </main>
       </div>
+      
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Make changes to your profile information here.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="department" className="text-right">
+                Department
+              </Label>
+              <Select 
+                value={editedDepartment} 
+                onValueChange={setEditedDepartment}
+              >
+                <SelectTrigger id="department" className="col-span-3">
+                  <SelectValue placeholder="Select a department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Water Supply">Water Supply</SelectItem>
+                  <SelectItem value="Electricity">Electricity</SelectItem>
+                  <SelectItem value="Health">Health</SelectItem>
+                  <SelectItem value="Education">Education</SelectItem>
+                  <SelectItem value="Sanitation">Sanitation</SelectItem>
+                  <SelectItem value="Public Works">Public Works</SelectItem>
+                  <SelectItem value="Transportation">Transportation</SelectItem>
+                  <SelectItem value="Housing">Housing</SelectItem>
+                  <SelectItem value="Administration">Administration</SelectItem>
+                  <SelectItem value="Finance">Finance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={editedEmail}
+                onChange={(e) => setEditedEmail(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                value={editedPhone}
+                onChange={(e) => setEditedPhone(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" className="bg-purple hover:bg-purple-dark" onClick={handleSaveProfile}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

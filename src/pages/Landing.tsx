@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Building2, Users, FileText, Zap } from 'lucide-react';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Landing: React.FC = () => {
         <div className="text-xl font-bold">
           <span className="text-white">JD</span>
           <span className="text-purple-light"> | </span>
-          <span className="text-purple-light">Modern Solutions</span>
+          <span className="text-purple-light">Frameworks</span>
         </div>
         <div className="flex gap-4">
           <Button
@@ -36,18 +36,17 @@ const Landing: React.FC = () => {
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             <span className="text-white">JD</span>
-            <span className="gradient-text"> Modern Solutions</span>
+            <span className="gradient-text"> Frameworks</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8">
             A unified platform for interdepartmental cooperation and streamlined communication.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center mb-8">
             <Button
               className="bg-purple hover:bg-purple-dark text-lg px-8 py-6"
               onClick={() => navigate('/dashboard')}
             >
               Go to Dashboard
-              
             </Button>
             <Button
               variant="outline"
@@ -57,6 +56,29 @@ const Landing: React.FC = () => {
               Explore Departments
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
+          </div>
+          
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div onClick={() => navigate('/departments')} className="bg-white/10 p-6 rounded-lg text-center cursor-pointer hover:bg-white/20 transition-colors">
+              <Building2 className="h-10 w-10 mx-auto mb-4 text-purple-light" />
+              <h3 className="text-white text-lg font-medium">Explore All Departments</h3>
+              <p className="text-gray-300 mt-2">Browse our departments and services</p>
+            </div>
+            <div onClick={() => navigate('/requests/new')} className="bg-white/10 p-6 rounded-lg text-center cursor-pointer hover:bg-white/20 transition-colors">
+              <FileText className="h-10 w-10 mx-auto mb-4 text-purple-light" />
+              <h3 className="text-white text-lg font-medium">Submit Request</h3>
+              <p className="text-gray-300 mt-2">Create a new service request</p>
+            </div>
+            <div onClick={() => navigate('/team')} className="bg-white/10 p-6 rounded-lg text-center cursor-pointer hover:bg-white/20 transition-colors">
+              <Users className="h-10 w-10 mx-auto mb-4 text-purple-light" />
+              <h3 className="text-white text-lg font-medium">View Team</h3>
+              <p className="text-gray-300 mt-2">Meet our department teams</p>
+            </div>
+            <div onClick={() => navigate('/dashboard')} className="bg-white/10 p-6 rounded-lg text-center cursor-pointer hover:bg-white/20 transition-colors">
+              <Zap className="h-10 w-10 mx-auto mb-4 text-purple-light" />
+              <h3 className="text-white text-lg font-medium">Dashboard</h3>
+              <p className="text-gray-300 mt-2">Check request status and analytics</p>
+            </div>
           </div>
         </div>
       </main>
@@ -115,7 +137,7 @@ const Landing: React.FC = () => {
       <footer className="navy-bg text-white py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
-            <p className="text-gray-400">© 2025 JD Modern Solutions. All rights reserved.</p>
+            <p className="text-gray-400">© 2025 JD Frameworks. All rights reserved.</p>
           </div>
         </div>
       </footer>

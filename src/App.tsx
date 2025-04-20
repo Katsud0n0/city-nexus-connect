@@ -16,6 +16,8 @@ import Requests from "./pages/Requests";
 import CreateRequest from "./pages/CreateRequest";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Team from "./pages/Team";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/requests" element={<Requests />} />
             <Route path="/requests/new" element={<CreateRequest />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/home" element={<Navigate to="/dashboard" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

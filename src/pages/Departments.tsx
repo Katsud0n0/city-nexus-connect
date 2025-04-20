@@ -6,7 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { getDepartmentStats } from '@/utils/excelService';
-import { Droplet, Zap, Heart, GraduationCap, Trash2 } from 'lucide-react';
+import { Droplet, Zap, Heart, GraduationCap, Trash2, Building2, Car, Home, FileText, Landmark } from 'lucide-react';
 
 const Departments: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -55,6 +55,41 @@ const Departments: React.FC = () => {
       color: 'bg-purple-500',
       description: 'Handles waste management, sewage systems, and maintains cleanliness throughout the city.',
       count: departmentStats.find(d => d.department === 'Sanitation')?.count || 0
+    },
+    {
+      name: 'Public Works',
+      icon: <Building2 className="h-6 w-6" />,
+      color: 'bg-slate-500',
+      description: 'Oversees construction and maintenance of roads, bridges, buildings and other public infrastructure.',
+      count: departmentStats.find(d => d.department === 'Public Works')?.count || 0
+    },
+    {
+      name: 'Transportation',
+      icon: <Car className="h-6 w-6" />,
+      color: 'bg-orange-500',
+      description: 'Manages public transit systems, traffic management, and transportation infrastructure planning.',
+      count: departmentStats.find(d => d.department === 'Transportation')?.count || 0
+    },
+    {
+      name: 'Housing',
+      icon: <Home className="h-6 w-6" />,
+      color: 'bg-emerald-500',
+      description: 'Provides affordable housing solutions, housing assistance programs, and community development.',
+      count: departmentStats.find(d => d.department === 'Housing')?.count || 0
+    },
+    {
+      name: 'Administration',
+      icon: <FileText className="h-6 w-6" />,
+      color: 'bg-indigo-500',
+      description: 'Handles governmental administrative tasks, policy implementation, and interdepartmental coordination.',
+      count: departmentStats.find(d => d.department === 'Administration')?.count || 0
+    },
+    {
+      name: 'Finance',
+      icon: <Landmark className="h-6 w-6" />,
+      color: 'bg-cyan-500',
+      description: 'Manages city budget, taxation, financial planning, and economic development initiatives.',
+      count: departmentStats.find(d => d.department === 'Finance')?.count || 0
     }
   ];
 
@@ -67,11 +102,30 @@ const Departments: React.FC = () => {
         
         <main className="p-6">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">City Departments</h2>
-            <p className="text-gray-600">Connect and collaborate with different municipal departments</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">City Departments</h2>
+                <p className="text-gray-600">Connect and collaborate with different municipal departments</p>
+              </div>
+              
+              <Button 
+                className="bg-purple hover:bg-purple-dark"
+                onClick={() => navigate('/requests/new')}
+              >
+                New Request
+              </Button>
+            </div>
+            
+            <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/5 p-6 rounded-lg mt-4 shadow-sm">
+              <h3 className="text-lg font-medium mb-2">Interdepartmental Collaboration</h3>
+              <p className="text-gray-600">
+                Our platform enables seamless communication between departments to efficiently address citizen needs.
+                Submit requests, track status, and receive updates all in one place.
+              </p>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {departmentsInfo.map((dept) => (
               <DepartmentCard 
                 key={dept.name} 
@@ -102,7 +156,7 @@ type DepartmentCardProps = {
 const DepartmentCard: React.FC<DepartmentCardProps> = ({ name, icon, color, description, count, onClick }) => {
   return (
     <div 
-      className="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden cursor-pointer"
+      className="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden cursor-pointer h-full flex flex-col"
       onClick={onClick}
     >
       <div className={`${color} text-white p-4 flex justify-between items-center`}>
@@ -114,9 +168,9 @@ const DepartmentCard: React.FC<DepartmentCardProps> = ({ name, icon, color, desc
           {count}
         </div>
       </div>
-      <div className="p-4">
-        <p className="text-gray-600 mb-4">{description}</p>
-        <Button variant="outline" className="w-full">View Department</Button>
+      <div className="p-4 flex-1 flex flex-col">
+        <p className="text-gray-600 mb-4 flex-1">{description}</p>
+        <Button variant="outline" className="w-full mt-auto">View Department</Button>
       </div>
     </div>
   );
