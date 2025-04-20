@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
@@ -12,46 +11,52 @@ const Team = () => {
 
   const teamMembers = [
     {
-      fullName: 'John Smith',
-      username: 'john.smith',
+      fullName: 'Priya Sharma',
+      username: 'priya.sharma',
       department: 'Water Supply',
       role: 'Department Head',
-      email: 'john.smith@jdframework.com'
+      email: 'priya.sharma@jdframework.com',
+      phone: '+91 98765 43210'
     },
     {
-      fullName: 'Sarah Chen',
-      username: 'sarah.chen',
+      fullName: 'Rajesh Kumar',
+      username: 'rajesh.kumar',
       department: 'Education',
       role: 'Senior Administrator',
-      email: 'sarah.chen@jdframework.com'
+      email: 'rajesh.kumar@jdframework.com',
+      phone: '+91 87654 32109'
     },
     {
-      fullName: 'Raj Patel',
-      username: 'raj.patel',
+      fullName: 'Anjali Patel',
+      username: 'anjali.patel',
       department: 'Transportation',
       role: 'Project Manager',
-      email: 'raj.patel@jdframework.com'
+      email: 'anjali.patel@jdframework.com',
+      phone: '+91 76543 21098'
     },
     {
-      fullName: 'Maria Garcia',
-      username: 'maria.garcia',
+      fullName: 'Mohammed Khan',
+      username: 'mohammed.khan',
       department: 'Health',
       role: 'Department Coordinator',
-      email: 'maria.garcia@jdframework.com'
+      email: 'mohammed.khan@jdframework.com',
+      phone: '+91 65432 10987'
     },
     {
-      fullName: 'David Kim',
-      username: 'david.kim',
+      fullName: 'Sunita Reddy',
+      username: 'sunita.reddy',
       department: 'Finance',
       role: 'Financial Analyst',
-      email: 'david.kim@jdframework.com'
+      email: 'sunita.reddy@jdframework.com',
+      phone: '+91 54321 09876'
     },
     {
-      fullName: 'Priya Shah',
-      username: 'priya.shah',
+      fullName: 'Arjun Gupta',
+      username: 'arjun.gupta',
       department: 'Public Works',
       role: 'Operations Manager',
-      email: 'priya.shah@jdframework.com'
+      email: 'arjun.gupta@jdframework.com',
+      phone: '+91 43210 98765'
     }
   ];
 
@@ -77,11 +82,6 @@ const Team = () => {
         <Header title="Team" />
         
         <main className="p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Departmental Teams</h2>
-            <p className="text-gray-600">Connect with team members across various departments</p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teamMembers.map((member) => (
               <Card key={member.username}>
@@ -104,12 +104,8 @@ const Team = () => {
                       <span className="text-sm">{member.email}</span>
                     </Button>
                     <Button variant="outline" className="w-full justify-start">
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Message
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
                       <Phone className="mr-2 h-4 w-4" />
-                      Call
+                      <span className="text-sm">{member.phone}</span>
                     </Button>
                   </div>
                 </CardContent>
